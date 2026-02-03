@@ -1,0 +1,7 @@
+﻿  Board.cpp
+  Game.cpp
+  Source.cpp
+  Sudoku.cpp
+C:\Users\Bruno\source\repos\Sudoku\Sudoku\Sudoku.cpp(7,25): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating Code...
+  Sudoku.vcxproj -> C:\Users\Bruno\source\repos\Sudoku\x64\Debug\Sudoku.exe
