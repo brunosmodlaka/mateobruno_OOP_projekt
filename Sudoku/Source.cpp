@@ -1,219 +1,164 @@
-﻿#include <SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 #include <optional>
-#include <string>
-#include <array>
-#include "easy.h"
-#include "medium.h"
-#include "hard.h"
+#include "drawGrid.h"
+#include "Game.h"
+#include "Popup.h"
 
-enum class Difficulty { Easy, Medium, Hard };
-struct Button {
-    sf::RectangleShape box;      // outer
-    sf::RectangleShape inner;    // inner panel
-    sf::Text label;
-    Difficulty value;
+int main()
+{
+    sf::VideoMode dm = sf::VideoMode::getDesktopMode();
+    sf::RenderWindow window(dm, "Sudoku");
 
-    Button(const sf::Font& uiFont) : label(uiFont) {}
-};
-    
+    float cell = 60.f;
+    float size = cell * 9.f;
 
+    float w = (float)dm.size.x;
+    float h = (float)dm.size.y;
 
-static bool contains(const sf::RectangleShape& r, sf::Vector2f p) {
-    return r.getGlobalBounds().contains(p);
-}
-
-int main() {
-    sf::Font uiFont;      // retro gaming
-    sf::Font gridFont;    // normalni (Arial)
-
-    if (!uiFont.openFromFile("RetroGaming.ttf")) {
-        return -1;
-    }
-
-    if (!gridFont.openFromFile("arial.ttf")) {
-        return -1;
-    }
-
-
-
-    sf::RenderWindow window(
-        sf::VideoMode::getDesktopMode(),
-        "Sudoku"
-       
-    );  
-
-
-    auto dm = sf::VideoMode::getDesktopMode();
-    const float W = static_cast<float>(dm.size.x);
-    const float H = static_cast<float>(dm.size.y);
-
-    // ---- FONT (stavi arial.ttf pored .exe) ----
- 
-
-
-    // Skaliranje u odnosu na 1920x1080
-    const float sx = W / 1920.f;
-    const float sy = H / 1080.f;
-    const float s = std::min(sx, sy); // uniformno skaliranje
-
-    // ---- NASLOVI ----
-    sf::Text title(uiFont, "Dobrodosli u igru Sudoku", static_cast<unsigned>(66 * s));
-    title.setFillColor(sf::Color::White);
-    title.setPosition({
-        W / 2.f - title.getLocalBounds().size.x / 2.f,
-        90.f * s
-        });
-
-    sf::Text subtitle(uiFont, "Izaberite razinu:", static_cast<unsigned>(34 * s));
-    subtitle.setFillColor(sf::Color::White);
-    subtitle.setPosition({
-        W / 2.f - subtitle.getLocalBounds().size.x / 2.f,
-        170.f * s
-        });
-
-    // ---- BUTTONI ----
-    const sf::Vector2f btnSize(520.f * s, 95.f * s);
-    const float startY = 290.f * s;
-    const float gapY = 35.f * s;
-
-
-    auto makeButton = [&](const std::string& text, float y, Difficulty d) -> Button {
-        Button b(uiFont);
-        b.value = d;
-
-        // Outer box
-        b.box.setSize(btnSize);
-        b.box.setPosition({ W / 2.f - btnSize.x / 2.f, y });
-        b.box.setFillColor(sf::Color(15, 15, 18));
-        b.box.setOutlineThickness(3.f * s);
-        b.box.setOutlineColor(sf::Color(180, 180, 180)); // base neon-ish
-
-        // Inner panel (gives depth)
-        b.inner.setSize({ btnSize.x - 10.f * s, btnSize.y - 10.f * s });
-        b.inner.setPosition({ b.box.getPosition().x + 5.f * s, b.box.getPosition().y + 5.f * s });
-        b.inner.setFillColor(sf::Color(30, 30, 36));
-        b.inner.setOutlineThickness(1.f * s);
-        b.inner.setOutlineColor(sf::Color(70, 70, 90));
-
-        // Label
-        b.label.setString(text);
-
-        // pixel fonts izgledaju bolje na parnim veličinama
-        unsigned charSize = static_cast<unsigned>(28 * s);
-        if (charSize % 2 == 1) charSize++; // make it even
-        b.label.setCharacterSize(charSize);
-
-        b.label.setFillColor(sf::Color::White);
-        b.label.setStyle(sf::Text::Bold);
-
-        auto bounds = b.label.getLocalBounds();
-        b.label.setPosition({
-            b.box.getPosition().x + (btnSize.x - bounds.size.x) / 2.f - bounds.position.x,
-            b.box.getPosition().y + (btnSize.y - bounds.size.y) / 2.f - bounds.position.y
-            });
-
-        return b;
-        };
-
-    std::array<Button, 3> buttons = {
-        makeButton("Easy",   startY + 0.f * (btnSize.y + gapY), Difficulty::Easy),
-        makeButton("Medium", startY + 1.f * (btnSize.y + gapY), Difficulty::Medium),
-        makeButton("Hard",   startY + 2.f * (btnSize.y + gapY), Difficulty::Hard),
+    GridLayout layout;
+    layout.cell = cell;
+    layout.size = size;
+    layout.origin = {
+        w / 2.f - size / 2.f,
+        h / 2.f - size / 2.f
     };
+    sf::Font font;
+    if (!font.openFromFile("arial.ttf"))
+        return -1;
 
-    std::optional<int> hovered; // index buttona (0..2)
-    std::optional<int> pressed;
-    auto diffName = [](Difficulty d) -> std::string {
-        switch (d) {
-        case Difficulty::Easy: return "Easy";
-        case Difficulty::Medium: return "Medium";
-        case Difficulty::Hard: return "Hard";
-        }
-        return "Medium";
+    Popup popup(font, window.getSize());
+    Igra igra(font, window.getSize());
+    // ovo je vecinski vamo sfml tekstovi itd....
+    sf::Text tekstGreske(font);
+    tekstGreske.setCharacterSize(28);
+    tekstGreske.setFillColor(sf::Color::White);
+    tekstGreske.setPosition({ 30.f, 30.f });
+
+    sf::RectangleShape gameOverBg;
+    gameOverBg.setSize({
+        (float)window.getSize().x,
+        (float)window.getSize().y
+        });
+    gameOverBg.setFillColor(sf::Color(150, 0, 0));
+    sf::Text gameOverText(font);
+    gameOverText.setString("GAME OVER");
+    gameOverText.setCharacterSize(72);
+    gameOverText.setFillColor(sf::Color::White);
+    
+    sf::Text winText(font);
+    winText.setString("YOU WIN");
+    winText.setCharacterSize(72);
+    winText.setFillColor(sf::Color::White);
+    auto centerText = [&](sf::Text& t)
+        {
+            auto b = t.getLocalBounds();
+            t.setPosition({
+                window.getSize().x / 2.f - b.size.x / 2.f - b.position.x,
+                window.getSize().y / 2.f - b.size.y / 2.f - b.position.y
+                });
         };
 
-    while (window.isOpen()) {
+    centerText(gameOverText);
+    centerText(winText);
 
-        while (auto event = window.pollEvent())
+    while (window.isOpen())
+    {
+        while (auto e = window.pollEvent())
         {
-            if (event->is<sf::Event::Closed>()) {
+            if (e->is<sf::Event::Closed>())
                 window.close();
-                break;
-            }
 
-            if (const auto* kp = event->getIf<sf::Event::KeyPressed>()) {
-                if (kp->code == sf::Keyboard::Key::Escape) {
-                    window.close();
-                    break;
-                }
-            }
+            
+            if (const auto* klik = e->getIf<sf::Event::MouseButtonPressed>())
+            {
+                window.requestFocus();
 
-            // HOVER
-            if (const auto* mm = event->getIf<sf::Event::MouseMoved>()) {
-                sf::Vector2f mpos((float)mm->position.x, (float)mm->position.y);
-                hovered.reset();
-                for (int i = 0; i < (int)buttons.size(); i++) {
-                    if (contains(buttons[i].box, mpos)) {
-                        hovered = i;
-                        break;
-                    }
-                }
-            }
+                float mx = klik->position.x - layout.origin.x;
+                float my = klik->position.y - layout.origin.y;
 
-            // PRESS
-            if (const auto* mb = event->getIf<sf::Event::MouseButtonPressed>()) {
-                if (mb->button == sf::Mouse::Button::Left) {
-                    sf::Vector2f mpos((float)mb->position.x, (float)mb->position.y);
-
-                    pressed.reset();
-                    for (int i = 0; i < (int)buttons.size(); i++) {
-                        if (contains(buttons[i].box, mpos)) {
-                            pressed = i;
-
-                            Difficulty chosen = buttons[i].value;
-                            if (chosen == Difficulty::Easy) {
-                                startEasy(window, uiFont, gridFont);
-                            }
-                            if (chosen == Difficulty::Medium) {
-                                startMedium(window, uiFont, gridFont);
-                            }
-                            if (chosen == Difficulty::Hard) {
-                                startHard(window, uiFont, gridFont);
-                            }
-                            break;
-                        }
-                    }
+                if (mx >= 0 && my >= 0 &&
+                    mx < layout.size && my < layout.size)
+                {
+                    int stupac = int(mx / layout.cell);
+                    int red = int(my / layout.cell);
+                    igra.OznaceniKvadratic(red, stupac);
                 }
             }
 
             
-            if (const auto* mr = event->getIf<sf::Event::MouseButtonReleased>()) {
-                if (mr->button == sf::Mouse::Button::Left) {
-                    pressed.reset();
+            if (const auto* txt = e->getIf<sf::Event::TextEntered>())
+            {
+                int u = txt->unicode;
+
+                if (u >= 49 && u <= 57)
+                    igra.UneseniBroj(u - 48);
+                else if (u == 48)
+                    igra.UneseniBroj(0);
+            }
+        }
+
+        
+
+        window.clear();
+
+        if (igra.isGameOver())
+        {
+            window.clear(sf::Color(150, 0, 0)); 
+            window.draw(gameOverText);
+        }
+        else if (igra.isWin())
+        {
+            window.clear(sf::Color(0, 120, 0));
+            window.draw(winText);
+        }
+        else
+        {
+            window.clear(sf::Color(20, 20, 20));
+
+            drawGrid(window, layout);
+
+            const Sudoku& s = igra.getSudoku();
+
+            for (int r = 0; r < 9; r++)
+            {
+                for (int c = 0; c < 9; c++)
+                {
+                    int v = s.getCell(r, c);
+                    if (v == 0)
+                        continue;
+
+                    sf::Text t(font);
+                    t.setString(std::to_string(v));
+                    t.setCharacterSize(32);
+                    t.setFillColor(sf::Color::White);
+
+                    float x = layout.origin.x + c * layout.cell + layout.cell / 2.f;
+                    float y = layout.origin.y + r * layout.cell + layout.cell / 2.f;
+
+                    auto b = t.getLocalBounds();
+                    t.setPosition({
+                        x - b.size.x / 2.f - b.position.x,
+                        y - b.size.y / 2.f - b.position.y
+                        });
+
+                    window.draw(t);
                 }
             }
-        } //  OVO zatvara pollEvent while
 
-        //  OVDJE IDE DRAW (unutar window.isOpen while)
-        window.clear(sf::Color::Black);
-
-      
-        // hover boje
-        for (int i = 0; i < (int)buttons.size(); i++) {
-            bool isHover = hovered.has_value() && hovered.value() == i;
-            buttons[i].box.setFillColor(isHover ? sf::Color(60, 60, 90) : sf::Color(30, 30, 30));
+            tekstGreske.setString(
+                "Greske: " + std::to_string(igra.getMistakes()) + " / 5"
+            );
+            window.draw(tekstGreske);
         }
-
-        window.draw(title);
-        window.draw(subtitle);
-
-        for (auto& b : buttons) {
-            window.draw(b.box);
-            window.draw(b.label);
-        }
-
+        igra.updatePopup();
+        igra.drawPopup(window);
         window.display();
+
     }
+
+
     
+
     return 0;
 }
+    

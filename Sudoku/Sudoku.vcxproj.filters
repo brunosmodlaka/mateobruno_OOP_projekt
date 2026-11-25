@@ -18,54 +18,36 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="easy.cpp">
+    <ClCompile Include="DrawGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="puzzle_loader.cpp">
+    <ClCompile Include="Sudoku.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="drawGrid.cpp">
+    <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="drawNumbers.cpp">
+    <ClCompile Include="Popup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="drawUserCells.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="checkBoard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="medium.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hard.cpp">
+    <ClCompile Include="Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="easy.h">
+    <ClInclude Include="DrawGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="puzzle_loader.h">
+    <ClInclude Include="Sudoku.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drawGrid.h">
+    <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drawNumbers.h">
+    <ClInclude Include="Popup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drawUserCells.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checkBoard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="medium.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hard.h">
+    <ClInclude Include="Board.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

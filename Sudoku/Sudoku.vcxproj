@@ -18,6 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Board.cpp" />
+    <ClCompile Include="DrawGrid.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Popup.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Sudoku.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Board.h" />
+    <ClInclude Include="DrawGrid.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="Popup.h" />
+    <ClInclude Include="Sudoku.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -130,27 +145,6 @@
       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="checkBoard.cpp" />
-    <ClCompile Include="drawGrid.cpp" />
-    <ClCompile Include="drawNumbers.cpp" />
-    <ClCompile Include="drawUserCells.cpp" />
-    <ClCompile Include="easy.cpp" />
-    <ClCompile Include="hard.cpp" />
-    <ClCompile Include="medium.cpp" />
-    <ClCompile Include="puzzle_loader.cpp" />
-    <ClCompile Include="Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="checkBoard.h" />
-    <ClInclude Include="drawGrid.h" />
-    <ClInclude Include="drawNumbers.h" />
-    <ClInclude Include="drawUserCells.h" />
-    <ClInclude Include="easy.h" />
-    <ClInclude Include="hard.h" />
-    <ClInclude Include="medium.h" />
-    <ClInclude Include="puzzle_loader.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
