@@ -20,7 +20,7 @@ public:
 
     void OznaceniKvadratic(int row, int col);
     bool UneseniBroj(int num);
-    const Sudoku& getSudoku() const;
+    const Sudoku& getSudoku() const;     
     int getSelectedRow() const;
     int getSelectedCol() const;
     int getMistakes() const;
